@@ -27,6 +27,7 @@ armadillo = pd.DataFrame({
 
 
 def do_PCA(armadillo):
+
   #
   # TODO: Write code to import the libraries required for PCA.
   # Then, train your PCA on the armadillo dataframe. Finally,
@@ -38,9 +39,15 @@ def do_PCA(armadillo):
   # not a Pandas dataframe, which is something Pandas does for
   # you automatically. =)
   #
-  # .. your code here ..
+  
+  from sklearn.decomposition import PCA
+  pca = PCA(n_components = 2, svd_solver = 'full')
+  pca.fit(armadillo)
+  
+  PCA(copy=True, n_components=2, whiten=False)
+  T=pca.transform(armadillo)
 
-  return None
+  return T
 
 
 def do_RandomizedPCA(armadillo):
@@ -65,7 +72,14 @@ def do_RandomizedPCA(armadillo):
   #
   # Deprecated Method: http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.RandomizedPCA.html
   #
-  # .. your code here ..
+  from sklearn.decomposition import PCA
+  pca = PCA(n_components = 2, svd_solver = 'randomized')
+  pca.fit(armadillo)
+  
+  PCA(copy=True, n_components=2, whiten=False)
+  T=pca.transform(armadillo)
+
+  return T
 
   return None
 
@@ -95,7 +109,6 @@ if not pca is None:
   ax = fig.add_subplot(111)
   ax.set_title('PCA, build time: ' + str(time_delta))
   ax.scatter(pca[:,0], pca[:,1], c='blue', marker='.', alpha=0.75)
-
 
 
 # Time the execution of rPCA 5000x
