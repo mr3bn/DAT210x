@@ -6,9 +6,11 @@ import numpy as np
 # TODO:
 # Load up the dataset, setting correct header labels.
 #
-# .. your code here ..
 
+census = pd.read_table('Datasets/census.data', delimiter=',', header=None, index_col=0)
 
+n = ['education', 'age', 'capital-gain', 'race', 'capital-loss', 'hours-per-week', 'sex', 'classification']
+census.columns = n
 
 #
 # TODO:
@@ -23,9 +25,12 @@ import numpy as np
 # should be represented as nans, you can convert them using
 # na_values when loading the dataframe.
 #
-# .. your code here ..
 
+print census.head(5)
+    
+# some ? values in the capital-gain column...
 
+pd.to_numeric(census.loc[:, 'capital-gain'], errors='coerce')
 
 #
 # TODO:
@@ -38,9 +43,26 @@ import numpy as np
 # what makes more sense generally---to represent such features with a
 # continuous numeric type... or a series of categories?
 #
-# .. your code here ..
+for i in range(0, len(census.columns)):
+    # print the column's name and datatype of its elements
+    # each column should be atomic at this point, 
+    # so we're just checking for proper type
+    c = census.iloc[:, i]
+    typeString = c.dtype.str
+    print census.columns[i] + ': ' + typeString
+    
+# encode the education field (ordinal)
+    
+ordered_education = ['Preschool', '1st-4th', '5th-6th', '7th-8th', '9th', '10th', '11th', '12th', 'HS-grad', 'Some-college', 'Bachelors', 'Masters', 'Doctorate']
+census.education = census.education.astype('category', ordered=True, categories=ordered_education).cat.codes
 
+# encode the classification field (ordinal)
 
+ordered_classification = ['<=50K', '>50K']
+census.classification = census.classification.astype('category', ordered=True, categories=ordered_classification).cat.codes
+
+# encode the race and sex fields (nominal)
+census = pd.get_dummies(census, columns=['race', 'sex'])
 
 #
 # TODO:
