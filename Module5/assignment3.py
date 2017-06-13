@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 
 matplotlib.style.use('ggplot') # Look Pretty
+from sklearn.cluster import KMeans
 
 #
 # INFO: This dataset has call records for 10 users tracked over the course of 3 years.
@@ -47,20 +48,26 @@ def doKMeans(data, clusters=0):
   # of your domain expertise. Also, *YOU* need to instantiate (and return) the variable named `model`
   # here, which will be a SKLearn K-Means model for this to work.
   #
-  # .. your code here ..
-  return model
-
-
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.scatter(data.TowerLon, data.TowerLat, marker='.', alpha=0.3)
+       
+    data = data.loc[:, ['TowerLon', 'TowerLat']].dropna()
+    kmeans=KMeans(n_clusters=1)
+    model=kmeans.fit(data)
+    centroids = model.cluster_centers_
+    ax.scatter(centroids[:,0], centroids[:,1], marker='x', c='red', alpha=0.5, linewidths=3, s=169)
+    print centroids
+    return model
 
 #
 # TODO: Load up the dataset and take a peek at its head and dtypes.
 # Convert the date using pd.to_datetime, and the time using pd.to_timedelta
 #
-# .. your code here ..
+df=pd.read_csv('Datasets/CDR.csv', delimiter=',', header=0)
 
-
-
-
+df.CallDate = pd.to_datetime(df.CallDate, errors='coerce')
+df.CallTime = pd.to_timedelta(df.CallTime, errors='coerce')
 
 #
 # TODO: Create a unique list of of the phone-number values (users) stored in the
@@ -68,7 +75,7 @@ def doKMeans(data, clusters=0):
 # Manually check through unique_numbers to ensure the order the numbers appear is
 # the same order they appear (uniquely) in your dataset:
 #
-# .. your code here ..
+unique_numbers = df.In.unique()
 
 
 #
@@ -95,14 +102,12 @@ print "\n\nExamining person: ", 0
 # TODO: Create a slice called user1 that filters to only include dataset records where the
 # "In" feature (user phone number) is equal to the first number on your unique list above
 #
-# .. your code here ..
-
+user1 = df.where(df.In==unique_numbers[0])
 
 #
 # TODO: Alter your slice so that it includes only Weekday (Mon-Fri) values.
 #
-# .. your code here ..
-
+user1 = df.where((df.DOW!='Sat') & (df.DOW!='Sun'))
 
 #
 # TODO: The idea is that the call was placed before 5pm. From Midnight-730a, the user is
@@ -110,14 +115,12 @@ print "\n\nExamining person: ", 0
 # in the morning during their commute to work, then they'll spend the entire day at work.
 # So the assumption is that most of the time is spent either at work, or in 2nd, at home.
 #
-# .. your code here ..
-
+user1 = df.where(df.CallTime < '17:00:00')
 
 #
 # TODO: Plot the Cell Towers the user connected to
 #
-# .. your code here ..
-
+user1.plot.scatter(x='TowerLon', y='TowerLat', c='gray', alpha=0.1, title='Call Locations')
 
 
 #
@@ -136,8 +139,9 @@ model = doKMeans(user1, 3)
 # The cluster with the 2nd most samples will be home. And the K=3 cluster with the least samples
 # should be somewhere in between the two. What time, on average, is the user in between home and
 # work, between the midnight and 5pm?
+
 midWayClusterIndices = clusterWithFewestSamples(model)
-midWaySamples = user1[midWayClusterIndices]
+midWaySamples = user1.loc[midWayClusterIndices]
 print "    Its Waypoint Time: ", midWaySamples.CallTime.mean()
 
 

@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from sklearn import preprocessing
+from sklearn.cluster import KMeans
 
 import matplotlib.pyplot as plt
 import matplotlib
@@ -55,17 +56,11 @@ def doPCA(data, dimensions=2):
 
 
 def doKMeans(data, clusters=0):
-  #
-  # TODO: Do the KMeans clustering here, passing in the # of clusters parameter
-  # and fit it against your data. Then, return a tuple containing the cluster
-  # centers and the labels.
-  #
-  # Hint: Just like with doPCA above, you will have to create a variable called
-  # `model`, which is a SKLearn K-Means model for this to work.
-  #
-  # .. your code here ..
-  return model.cluster_centers_, model.labels_
-
+    kmeans=KMeans(n_clusters=1)
+    model=kmeans.fit(data)
+    centroids = model.cluster_centers_
+    print centroids
+    return model.cluster_centers_, model.labels_
 
 #
 # TODO: Load up the dataset. It may or may not have nans in it. Make
@@ -73,7 +68,8 @@ def doKMeans(data, clusters=0):
 # for this dataset, since if the value is missing, you can assume no $ was spent
 # on it.
 #
-# .. your code here ..
+df = pd.read_csv('Datasets/Wholesale customers data.csv', delimiter=',', header=0)
+df = df.fillna(value=0)
 
 #
 # TODO: As instructed, get rid of the 'Channel' and 'Region' columns, since
@@ -81,16 +77,16 @@ def doKMeans(data, clusters=0):
 # than a national / international one. Leaving these fields in here would cause
 # KMeans to examine and give weight to them.
 #
-# .. your code here ..
-
+del df['Channel']
+del df['Region']
 
 #
 # TODO: Before unitizing / standardizing / normalizing your data in preparation for
 # K-Means, it's a good idea to get a quick peek at it. You can do this using the
 # .describe() method, or even by using the built-in pandas df.plot.hist()
 #
-# .. your code here ..
-
+df.describe()
+df.plot.hist()
 
 #
 # INFO: Having checked out your data, you may have noticed there's a pretty big gap
@@ -103,6 +99,7 @@ def doKMeans(data, clusters=0):
 # creme dela creme, or bottom of the barrel'ers
 #
 # Remove top 5 and bottom 5 samples for each column:
+    
 drop = {}
 for col in df.columns:
   # Bottom 5
@@ -178,8 +175,8 @@ print df.describe()
 #T = preprocessing.StandardScaler().fit_transform(df)
 #T = preprocessing.MinMaxScaler().fit_transform(df)
 #T = preprocessing.MaxAbsScaler().fit_transform(df)
-#T = preprocessing.Normalizer().fit_transform(df)
-T = df # No Change
+T = preprocessing.Normalizer().fit_transform(df)
+#T = df # No Change
 
 
 #
@@ -201,8 +198,7 @@ centroids, labels = doKMeans(T, n_clusters)
 # TODO: Print out your centroids. They're currently in feature-space, which
 # is good. Print them out before you transform them into PCA space for viewing
 #
-# .. your code here ..
-
+print centroids
 
 # Do PCA *after* to visualize the results. Project the centroids as well as 
 # the samples into the new 2D feature space for visualization purposes.

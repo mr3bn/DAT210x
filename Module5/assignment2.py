@@ -3,13 +3,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib
 
+from sklearn.cluster import KMeans
+
 matplotlib.style.use('ggplot') # Look Pretty
 
 def showandtell(title=None):
   if title != None: plt.savefig(title + ".png", bbox_inches='tight', dpi=300)
   plt.show()
   # exit()
-
 
 
 
@@ -22,29 +23,25 @@ def showandtell(title=None):
 # TODO: Load up the dataset and take a peek at its head
 # Convert the date using pd.to_datetime, and the time using pd.to_timedelta
 #
-# .. your code here ..
-
+df=pd.read_csv('Datasets/CDR.csv', delimiter=',', header=0)
 
 #
 # TODO: Get a distinct list of "In" phone numbers (users) and store the values in a
 # regular python list.
 # Hint: https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.tolist.html
 #
-# .. your code here ..
-
+users = df.In.unique()
 
 # 
 # TODO: Create a slice called user1 that filters to only include dataset records where the
 # "In" feature (user phone number) is equal to the first number on your unique list above;
 # that is, the very first number in the dataset
 #
-# .. your code here ..
-
+user1 = df.where(df.In==users[0]).dropna()
 
 # INFO: Plot all the call locations
 user1.plot.scatter(x='TowerLon', y='TowerLat', c='gray', alpha=0.1, title='Call Locations')
 showandtell()  # Comment this line out when you're ready to proceed
-
 
 #
 # INFO: The locations map above should be too "busy" to really wrap your head around. This
@@ -68,8 +65,7 @@ showandtell()  # Comment this line out when you're ready to proceed
 # TODO: Add more filters to the user1 slice you created. Add bitwise logic so that you're
 # only examining records that came in on weekends (sat/sun).
 #
-# .. your code here ..
-
+user1 = user1[(user1.DOW < 'Sat') | (user1.DOW > 'Sun')]
 
 #
 # TODO: Further filter it down for calls that came in either before 6AM OR after 10pm (22:00:00).
@@ -79,8 +75,7 @@ showandtell()  # Comment this line out when you're ready to proceed
 # You might also want to review the Data Manipulation section for this. Once you have your filtered
 # slice, print out its length:
 #
-# .. your code here ..
-
+user1 = user1[(user1.CallTime < '06:00:00') | (user1.CallTime > '22:00:00')]
 
 #
 # INFO: Visualize the dataframe with a scatter plot as a sanity check. Since you're familiar
@@ -92,12 +87,11 @@ showandtell()  # Comment this line out when you're ready to proceed
 # phone tower position data; but considering the below are for Calls that arrived in the twilight
 # hours of weekends, it's likely that wherever they are bunched up is probably near where the
 # caller's residence:
-fig = plt.figure()
-ax = fig.add_subplot(111)
-ax.scatter(user1.TowerLon,user1.TowerLat, c='g', marker='o', alpha=0.2)
-ax.set_title('Weekend Calls (<6am or >10p)')
-showandtell()  # TODO: Comment this line out when you're ready to proceed
-
+#fig = plt.figure()
+#ax = fig.add_subplot(111)
+#ax.scatter(user1.TowerLon,user1.TowerLat, c='g', marker='o', alpha=0.2)
+#ax.set_title('Weekend Calls (<6am or >10p)')
+# showandtell()  # TODO: Comment this line out when you're ready to proceed
 
 
 #
@@ -114,10 +108,19 @@ showandtell()  # TODO: Comment this line out when you're ready to proceed
 #
 # Hint: Make sure you graph the CORRECT coordinates. This is part of your domain expertise.
 #
-# .. your code here ..
+#fig = plt.figure()
+#ax = fig.add_subplot(111)
+#ax.scatter(df.TowerLon, df.TowerLat, marker='.', alpha=0.3)
+#  
+#df = df.loc[:, ['TowerLon', 'TowerLat']].dropna()
+#kmeans = KMeans(n_clusters=1)
+#model = kmeans.fit(df)
+#
+#
+#centroids = model.cluster_centers_
+#ax.scatter(centroids[:,0], centroids[:,1], marker='x', c='red', alpha=0.5, linewidths=3, s=169)
 
-
-showandtell()  # TODO: Comment this line out when you're ready to proceed
+# showandtell()  # TODO: Comment this line out when you're ready to proceed
 
 
 
@@ -125,5 +128,43 @@ showandtell()  # TODO: Comment this line out when you're ready to proceed
 # TODO: Repeat the above steps for all 10 individuals, being sure to record their approximate home
 # locations. You might want to use a for-loop, unless you enjoy typing.
 #
-# .. your code here ..
+
+centroid_dict = {}
+
+for i in range(0, len(users)):
+    u = df.where(df.In == users[i]).dropna()
+    
+    # call locations
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.scatter(u.TowerLon, u.TowerLat, c='grey', marker='o', alpha=0.2)
+    ax.set_title('User ' + str(i) + ' Call Locations')
+    
+    # weekends only
+    u = u[(u.DOW < 'Sat') | (u.DOW > 'Sun')]
+    u = u[(u.CallTime < '06:00:00') | (u.CallTime > '22:00:00')]
+    
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.scatter(u.TowerLon, u.TowerLat, c='green', marker='o', alpha=0.2)
+    ax.set_title('User ' + str(i) + ' Weekend Calls')
+    
+    # k-means
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.scatter(df.TowerLon, df.TowerLat, marker='.', alpha=0.3)
+    
+    u = u.loc[:, ['TowerLon', 'TowerLat']].dropna()
+    kmeans=KMeans(n_clusters=1)
+    model=kmeans.fit(u)
+    centroid = model.cluster_centers_
+    ax.scatter(centroid[:,0], centroid[:,1], marker='x', c='red', alpha=0.5, linewidths=3, s=169)
+    ax.set_title('User ' + str(i) + ' K-Means')
+    
+    centroid_dict.update({users[i]:centroid})
+    
+showandtell()
+    
+    
+    
 
