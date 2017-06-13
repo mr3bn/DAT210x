@@ -12,11 +12,9 @@ plt.style.use('ggplot')
 # TODO: Load up the Seeds Dataset into a Dataframe
 # It's located at 'Datasets/wheat.data'
 # 
-# .. your code here ..
+seeds = pd.read_table('Datasets/wheat.data', delimiter=',', index_col=0)
 
 
-
-fig = plt.figure()
 
 #
 # TODO: Create a new 3D subplot using fig. Then use the
@@ -25,10 +23,15 @@ fig = plt.figure()
 # optional display parameter c='red', and also label your
 # axes
 # 
-# .. your code here ..
-
-
 fig = plt.figure()
+ax = fig.add_subplot(111, projection = '3d')
+ax.set_xlabel('Area')
+ax.set_ylabel('Perimeter')
+ax.set_zlabel('Asysmmetry')
+
+ax.scatter(seeds.area, seeds.perimeter, seeds.asymmetry, c='r', marker='.')
+plt.show()
+
 #
 # TODO: Create a new 3D subplot using fig. Then use the
 # subplot to graph a 3D scatter plot using the width,
@@ -36,9 +39,13 @@ fig = plt.figure()
 # optional display parameter c='green', and also label your
 # axes
 # 
-# .. your code here ..
+fig = plt.figure()
+ax = fig.add_subplot(111, projection = '3d')
+ax.set_xlabel('Width')
+ax.set_ylabel('Groove')
+ax.set_zlabel('Length')
 
-
+ax.scatter(seeds.width, seeds.groove, seeds.length, c='green', marker='.')
 plt.show()
 
 
