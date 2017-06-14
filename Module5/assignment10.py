@@ -47,8 +47,7 @@ Provided_Portion = 0.25
 #
 # TODO: Create a regular ol' Python List called `zero`
 #
-# .. your code here ..
-
+zero = []
 
 
 #
@@ -58,9 +57,11 @@ Provided_Portion = 0.25
 # data, and not sample_rate at this point. Inside your for loop, simply
 # append the loaded audio data into your Python list `zero`:
 #
-# .. your code here ..
 
-
+import os
+dir = 'Datasets/spoken-digit-jackson-0/'
+for f in os.listdir(dir):
+    zero.append(wavfile.read(dir + f)[1])
 
 # 
 # TODO: Just for a second, convert zero into a DataFrame. When you do
@@ -76,8 +77,10 @@ Provided_Portion = 0.25
 # do a dropna on the Y axis here. Then, convert one back into an
 # NDArray using yourarrayname.values
 #
-# .. your code here ..
 
+zero = pd.DataFrame(zero, dtype=np.int16)
+zero = zero.dropna(axis=1)
+zero = zero.values
 
 #
 # TODO: It's important to know how (many audio_samples samples) long the
@@ -85,17 +88,16 @@ Provided_Portion = 0.25
 # so get the n_audio_samples count and store it in a variable called
 # n_audio_samples
 #
-# .. your code here ..
 
-
+n_audio_samples = zero.shape[1]
 
 #
 # TODO: Create your linear regression model here and store it in a
 # variable called 'model'. Don't actually train or do anything else
 # with it yet:
 #
-# .. your code here ..
-
+from sklearn import linear_model
+model = linear_model.LinearRegression()
 
 
 #
@@ -119,8 +121,8 @@ train = np.delete(zero, [random_idx], axis=0)
 # train will be shaped [n_audio_features], since it is a single
 # sample (audio file, e.g. observation).
 #
-# .. your code here ..
-
+print train.shape
+print test.shape
 
 
 #
@@ -150,7 +152,7 @@ wavfile.write('Original Test Clip.wav', sample_rate, test)
 # n_audio_samples audio features from test and store it in X_test. This
 # should be accomplished using indexing.
 #
-# .. your code here ..
+
 
 
 #

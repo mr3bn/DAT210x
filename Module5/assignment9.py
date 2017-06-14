@@ -82,8 +82,7 @@ def drawPlane(model, X_test, y_test, title, R2):
 # as an index. Then, load up the College dataset into a variable
 # called X:
 #
-# .. your code here ..
-
+X = pd.read_csv('Datasets/college.csv', header=0, index_col=0)
 
 #
 # INFO: This line isn't necessary for your purposes; but we'd just
@@ -101,9 +100,8 @@ X.Private = X.Private.map({'Yes':1, 'No':0})
 # variable called 'model'. Don't actually train or do anything else
 # with it yet:
 #
-# .. your code here ..
-
-
+from sklearn import linear_model
+model = linear_model.LinearRegression()
 
 
 #
@@ -118,18 +116,22 @@ X.Private = X.Private.map({'Yes':1, 'No':0})
 # into X_train, X_test, y_train, y_test, with a test_size of 30% and
 # a random_state of 7.
 #
-# .. your code here ..
+from sklearn.model_selection import train_test_split
+rb = X[['Room.Board']]
+accepted = X[['Accept']]
+X_train, X_test, y_train, y_test = train_test_split(rb, accepted, test_size = 0.3, random_state=7)
+
 
 #
 # TODO: Fit and score your model appropriately. Store the score in the
 # score variable.
 #
-# .. your code here ..
+
+model.fit(X_train, y_train)
+score = model.score(X_test, y_test)
 
 # INFO: We'll take it from here, buddy:
 drawLine(model, X_test, y_test, "Accept(Room&Board)", score)
-
-
 
 
 # 
@@ -137,9 +139,11 @@ drawLine(model, X_test, y_test, "Accept(Room&Board)", score)
 # accepted students, as a function of the number of enrolled students
 # per college.
 #
-# .. your code here ..
+enrolled=X[['Enroll']]
+X_train, X_test, y_train, y_test = train_test_split(enrolled, accepted, test_size = 0.3, random_state=7)
+model.fit(X_train, y_train)
+score = model.score(X_test, y_test)
 drawLine(model, X_test, y_test, "Accept(Enroll)", score)
-
 
 
 # 
@@ -148,6 +152,10 @@ drawLine(model, X_test, y_test, "Accept(Enroll)", score)
 # students per college.
 #
 # .. your code here ..
+failed=X[['F.Undergrad']]
+X_train, X_test, y_train, y_test = train_test_split(failed, accepted, test_size = 0.3, random_state=7)
+model.fit(X_train, y_train)
+score = model.score(X_test, y_test)
 drawLine(model, X_test, y_test, "Accept(F.Undergrad)", score)
 
 
@@ -163,7 +171,10 @@ drawLine(model, X_test, y_test, "Accept(F.Undergrad)", score)
 # simply create a slice that contains both columns you wish to use as
 # inputs. Your training labels will remain a single slice.
 #
-# .. your code here ..
+rb_enrolled=X.loc[:, ['Room.Board', 'Enroll']]
+X_train, X_test, y_train, y_test = train_test_split(rb_enrolled, accepted, test_size = 0.3, random_state=7)
+model.fit(X_train, y_train)
+score = model.score(X_test, y_test)
 drawPlane(model, X_test, y_test, "Accept(Room&Board,Enroll)", score)
 
 
