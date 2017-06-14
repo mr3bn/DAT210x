@@ -2,6 +2,9 @@
 # as the dimensionality reduction technique:
 Test_PCA = True
 
+from sklearn.model_selection import train_test_split
+from sklearn import preprocessing
+import pandas as pd
 
 def plotDecisionBoundary(model, X, y):
   print "Plotting..."
@@ -57,29 +60,30 @@ def plotDecisionBoundary(model, X, y):
 # TODO: Load in the dataset, identify nans, and set proper headers.
 # Be sure to verify the rows line up by looking at the file in a text editor.
 #
-# .. your code here ..
-
-
+df = pd.read_table('Datasets/breast-cancer-wisconsin.data', delimiter=',', header=None)
+df.columns = ['sample', 'thickness', 'size', 'shape', 'adhesion', 'epithelial', 'nuclei', 'chromatin', 'nucleoli', 'mitoses', 'status']
+df.loc[:, 'nuclei'] = pd.to_numeric(df.nuclei, errors='coerce')
+df = df.fillna(df.mean())
 
 # 
 # TODO: Copy out the status column into a slice, then drop it from the main
 # dataframe. Always verify you properly executed the drop by double checking
 # (printing out the resulting operating)! Many people forget to set the right
 # axis here.
-#
+
+y = df.status
+del df['status']
+
+
 # If you goofed up on loading the dataset and notice you have a `sample` column,
 # this would be a good place to drop that too if you haven't already.
 #
-# .. your code here ..
-
-
+del df['sample']
 
 #
 # TODO: With the labels safely extracted from the dataset, replace any nan values
 # with the mean feature / column value
 #
-# .. your code here ..
-
 
 
 #
@@ -87,10 +91,7 @@ def plotDecisionBoundary(model, X, y):
 # the reading material, but set the random_state=7 for reproduceability, and keep
 # the test_size at 0.5 (50%).
 #
-# .. your code here ..
-
-
-
+X_train, X_test, y_train, y_test = train_test_split(df, y, test_size = 0.5, random_state=1)
 
 #
 # TODO: Experiment with the basic SKLearn preprocessing scalers. We know that
@@ -99,45 +100,48 @@ def plotDecisionBoundary(model, X, y):
 # of the dataset, post transformation. Recall: when you do pre-processing,
 # which portion of the dataset is your model trained upon? Also which portion(s)
 # of your dataset actually get transformed?
-#
-# .. your code here ..
 
-
-
+#X_train = preprocessing.StandardScaler().fit_transform(X_train)
+#X_train = preprocessing.MinMaxScaler().fit_transform(X_train)
+#X_train = preprocessing.MaxAbsScaler().fit_transform(X_train)
+X_train = preprocessing.Normalizer().fit_transform(X_train)
 
 #
 # PCA and Isomap are your new best friends
+
 model = None
+
+
 if Test_PCA:
   print "Computing 2D Principle Components"
   #
   # TODO: Implement PCA here. Save your model into the variable 'model'.
   # You should reduce down to two dimensions.
   #
-  # .. your code here ..
-
-  
+  from sklearn.decomposition import PCA
+  model = PCA(n_components = 2, svd_solver = 'full')
+  model.fit(X_train)  
 
 else:
-  print "Computing 2D Isomap Manifold"
+  print "Computing 2D Isomap Manifold"  
+  
   #
   # TODO: Implement Isomap here. Save your model into the variable 'model'
   # Experiment with K values from 5-10.
   # You should reduce down to two dimensions.
   #
-  # .. your code here ..
+  from sklearn import manifold
+  model = manifold.Isomap(n_neighbors=5, n_components=2)
+  model.fit(X_train)
   
-
-
-
+  
 #
 # TODO: Train your model against data_train, then transform both
 # data_train and data_test using your model. You can save the results right
 # back into the variables themselves.
 #
-# .. your code here ..
-
-
+X_train = model.transform(X_train)
+X_test = model.transform(X_test)
 
 # 
 # TODO: Implement and train KNeighborsClassifier on your projected 2D
@@ -147,8 +151,10 @@ else:
 # general (high-K). You should also experiment with how changing the weights
 # parameter affects the results.
 #
-# .. your code here ..
+from sklearn.neighbors import KNeighborsClassifier
 
+knn = KNeighborsClassifier(n_neighbors=5)
+knn = knn.fit(X_train, y_train)
 
 
 #
@@ -166,7 +172,7 @@ else:
 #
 # TODO: Calculate + Print the accuracy of the testing set
 #
-# .. your code here ..
+print knn.score(X_test, y_test)
 
 
-plotDecisionBoundary(knmodel, X_test, y_test)
+# plotDecisionBoundary(knmodel, X_test, y_test)

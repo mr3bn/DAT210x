@@ -6,6 +6,8 @@ import scipy.io
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 
+from sklearn.model_selection import train_test_split
+
 # If you'd like to try this lab with PCA instead of Isomap for dimensionality
 # reduction technique:
 Test_PCA = False
@@ -101,8 +103,10 @@ def Plot2DBoundary(DTrain, LTrain, DTest, LTest):
 # instead of sideways. This was demonstrated in the M4/A4 code:
 # https://github.com/authman/DAT210x/blob/master/Module4/assignment4.py#L31-L41
 #
-# .. your code here ..
-
+mat = scipy.io.loadmat('Datasets/face_data.mat')
+X = pd.DataFrame(mat['images']).T
+num_images, num_pixels = X.shape
+num_pixels = int(math.sqrt(num_pixels))
 
 #
 # TODO: Load up your face_labels dataset. It only has a single column, and
@@ -113,8 +117,7 @@ def Plot2DBoundary(DTrain, LTrain, DTest, LTest):
 # indexer to take care of that. Be sure to print out the labels and compare
 # what you see to the raw face_labels.csv so you know you loaded it correctly.
 #
-# .. your code here ..
-
+y = pd.read_csv('Datasets/face_labels.csv', header=None).loc[:, 0]
 
 #
 # TODO: Do train_test_split. Use the same code as on the EdX platform in the
@@ -126,8 +129,7 @@ def Plot2DBoundary(DTrain, LTrain, DTest, LTest):
 # expect this, so that they can plot your testing data as images rather than
 # as points:
 #
-# .. your code here ..
-
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.15, random_state=7)
 
 
 if Test_PCA:
@@ -149,9 +151,19 @@ if Test_PCA:
   # transform both your training + test data, storing the results back into
   # data_train, and data_test.
   #
-  # .. your code here ..
+  from sklearn.decomposition import PCA
+  pca = PCA(n_components = 2, svd_solver = 'full')
+  pca.fit(X_train)
+  
+  PCA(copy=True, n_components=2, whiten=False)
+  T=pca.transform(X_train)
 
 else:
+    from sklearn import manifold
+    iso = manifold.Isomap(n_neighbors=5, n_components=2)
+    iso.fit(X_train)
+    T = iso.transform(X_train)
+    
   # INFO: Isomap is used *before* KNeighbors to simplify your high dimensionality
   # image samples down to just 2 components! A lot of information has been is
   # lost during the process, as I'm sure you can imagine. But if you have
@@ -171,31 +183,31 @@ else:
   # transform both your training + test data, storing the results back into
   # data_train, and data_test.
   #
-  # .. your code here ..
-
-
-
 
 #
 # TODO: Implement KNeighborsClassifier here. You can use any K value from 1
 # through 20, so play around with it and attempt to get good accuracy.
 # Fit the classifier against your training data and labels.
 #
-# .. your code here ..
+from sklearn.neighbors import KNeighborsClassifier
 
+acc = []
 
+for i in range(1, 21):
+    model = KNeighborsClassifier(n_neighbors=i)
+    model.fit(X_train, y_train)
+    acc.append(model.score(X_test, y_test))
 
 #
 # TODO: Calculate + Print the accuracy of the testing set (data_test and
 # label_test).
 #
-# .. your code here ..
-
+print acc
 
 
 # Chart the combined decision boundary, the training data as 2D plots, and
 # the testing data as small images so we can visually validate performance.
-Plot2DBoundary(data_train, label_train, data_test, label_test)
+Plot2DBoundary(X_train, y_train, X_test, y_test)
 
 
 #
