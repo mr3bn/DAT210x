@@ -98,7 +98,7 @@ def benchmark(model, X_train, X_test, y_train, y_test, wintitle='Figure 1'):
     #
     # TODO: train the classifier on the training data / labels:
     #
-    # .. your code here ..
+    model.fit(X_train, y_train)
   print "{0} Iterations Training Time: ".format(iterations), time.time() - s
 
 
@@ -107,7 +107,7 @@ def benchmark(model, X_train, X_test, y_train, y_test, wintitle='Figure 1'):
     #
     # TODO: score the classifier on the testing data / labels:
     #
-    # .. your code here ..
+    score = model.score(X_test, y_test)
   print "{0} Iterations Scoring Time: ".format(iterations), time.time() - s
   print "High-Dimensionality Score: ", round((score*100), 3)
 
@@ -117,19 +117,16 @@ def benchmark(model, X_train, X_test, y_train, y_test, wintitle='Figure 1'):
 # TODO: Load up the wheat dataset into dataframe 'X'
 # Verify you did it properly.
 # Indices shouldn't be doubled, nor weird headers...
-#
-# .. your code here ..
-
+X= pd.read_csv('Datasets/wheat.data', index_col = 0, header=0)
 
 # INFO: An easy way to show which rows have nans in them
-#print X[pd.isnull(X).any(axis=1)]
+print X[pd.isnull(X).any(axis=1)]
 
 
 # 
 # TODO: Go ahead and drop any row with a nan
 #
-# .. your code here ..
-
+X = X.dropna()
 
 
 # 
@@ -145,35 +142,33 @@ def benchmark(model, X_train, X_test, y_train, y_test, wintitle='Figure 1'):
 # them from X. Encode the labels, using the .map() trick we showed
 # you in Module 5 -- canadian:0, kama:1, and rosa:2
 #
-# .. your code here ..
 
-
+y = X['wheat_type'].map({'canadian' : 0, 'kama' : 1, 'rosa' : 2})
+del X['wheat_type']
 
 # 
 # TODO: Split your data into test / train sets
 # Your test size can be 30% with random_state 7.
 # Use variable names: X_train, X_test, y_train, y_test
 #
-# .. your code here ..
-
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.3, random_state = 7)
 
 
 #
 # TODO: Create an SVC classifier named svc
 # Use a linear kernel, and set the C value to C
 #
-# .. your code here ..
+from sklearn.svm import SVC
+svc = SVC(kernel='linear')
 
 
 #
 # TODO: Create an KNeighbors classifier named knn
 # Set the neighbor count to 5
 #
-# .. your code here ..
-
-
-
-
+from sklearn.neighbors import KNeighborsClassifier
+knn = KNeighborsClassifier(n_neighbors=5)
 
 benchmark(knn, X_train, X_test, y_train, y_test, 'KNeighbors')
 drawPlots(knn, X_train, X_test, y_train, y_test, 'KNeighbors')

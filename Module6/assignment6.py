@@ -9,21 +9,20 @@ import time
 #
 # TODO: Load up the dataset into dataframe 'X'
 #
-# .. your code here ..
-
+X = pd.read_csv('Datasets/dataset-har-PUC-Rio-ugulino.csv', delimiter=';', index_col=None, header=0)
 
 
 #
 # TODO: Encode the gender column, 0 as male, 1 as female
 #
-# .. your code here ..
-
+X['gender'] = X['gender'].map({'Man' : 1, 'Woman' : 0})
 
 #
 # TODO: Clean up any column with commas in it
 # so that they're properly represented as decimals instead
 #
-# .. your code here ..
+X.loc[:, 'how_tall_in_meters'] = pd.to_numeric(X.loc[:, 'how_tall_in_meters'].str.replace(',' , '.'))
+X.loc[:, 'body_mass_index'] = pd.to_numeric(X.loc[:, 'body_mass_index'].str.replace(',' , '.'))
 
 
 #
@@ -37,7 +36,9 @@ print X.dtypes
 # use errors='raise'. This will alert you if something ends up being
 # problematic
 #
-# .. your code here ..
+
+X.z4 = pd.to_numeric(X.z4, errors='coerce')
+X = X.dropna()
 
 
 #
@@ -48,13 +49,20 @@ print X.dtypes
 #
 # TODO: Encode your 'y' value as a dummies version of your dataset's "class" column
 #
-# .. your code here ..
-
+y = X['class'].map({
+        'sitting' : 0,
+        'sittingdown' : 1,
+        'standing' : 2, 
+        'standingup' : 3, 
+        'walking' : 4
+        })
 
 #
 # TODO: Get rid of the user and class columns
 #
-# .. your code here ..
+del X['class']
+del X['user']
+
 print X.describe()
 
 
@@ -68,8 +76,9 @@ print X[pd.isnull(X).any(axis=1)]
 # TODO: Create an RForest classifier 'model' and set n_estimators=30,
 # the max_depth to 10, and oob_score=True, and random_state=0
 #
-# .. your code here ..
-
+from sklearn.ensemble import RandomForestClassifier
+model = RandomForestClassifier(n_estimators=30, max_depth=10, 
+                                oob_score=True, random_state=0)
 
 
 # 
@@ -77,10 +86,9 @@ print X[pd.isnull(X).any(axis=1)]
 # Your test size can be 30% with random_state 7
 # Use variable names: X_train, X_test, y_train, y_test
 #
-# .. your code here ..
 
-
-
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.3, random_state = 7)
 
 
 print "Fitting..."
@@ -88,7 +96,7 @@ s = time.time()
 #
 # TODO: train your model on your training set
 #
-# .. your code here ..
+model.fit(X_train, y_train)
 print "Fitting completed in: ", time.time() - s
 
 
@@ -98,14 +106,12 @@ score = model.oob_score_
 print "OOB Score: ", round(score*100, 3)
 
 
-
-
 print "Scoring..."
 s = time.time()
 #
 # TODO: score your model on your test set
 #
-# .. your code here ..
+score = model.score(X_test, y_test)
 print "Score: ", round(score*100, 3)
 print "Scoring completed in: ", time.time() - s
 

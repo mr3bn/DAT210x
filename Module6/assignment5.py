@@ -11,7 +11,16 @@ import pandas as pd
 # Header information is on the dataset's website at the UCI ML Repo
 # Check NA Encoding
 #
-# .. your code here ..
+
+X = pd.read_table('Datasets/agaricus-lepiota.data', index_col=None, header=0, delimiter=',')
+
+headers = ['label', 'cap_shape', 'cap_surface', 'cap_color', 'bruises', 'odor', 
+           'gill_attachment', 'gill_spacing', 'gill_size', 'gill_color', 
+           'stalk_shape', 'stalk_root', 'stalk_surface_above', 
+           'stalk_surface_below', 'stalk_color_above', 'stalk_color_below',
+           'veil_type', 'veil_color', 'ring_number', 'ring_type', 'spore_print', 
+           'population', 'habitat']
+X.columns = headers
 
 # INFO: An easy way to show which rows have nans in them
 #print X[pd.isnull(X).any(axis=1)]
@@ -20,7 +29,8 @@ import pandas as pd
 # 
 # TODO: Go ahead and drop any row with a nan
 #
-# .. your code here ..
+df = X.dropna()
+
 print X.shape
 
 
@@ -29,13 +39,14 @@ print X.shape
 # them from X. Encode the labels, using the .map() trick we showed
 # you in Module 5 -- canadian:0, kama:1, and rosa:2
 #
-# .. your code here ..
 
+y = X['label'].map({'p' : 0, 'e' : 1})
+del X['label']
 
 #
 # TODO: Encode the entire dataset using dummies
 #
-# .. your code here ..
+X = pd.get_dummies(X, prefix=X.columns)
 
 
 # 
@@ -43,23 +54,27 @@ print X.shape
 # Your test size can be 30% with random_state 7
 # Use variable names: X_train, X_test, y_train, y_test
 #
-# .. your code here ..
-
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.3, random_state = 7)
 
 
 #
-# TODO: Create an DT classifier. No need to set any parameters
+# TODO: Create a DT classifier. No need to set any parameters
 #
-# .. your code here ..
-
+from sklearn import tree
+dt = tree.DecisionTreeClassifier()
  
 #
 # TODO: train the classifier on the training data / labels:
 # TODO: score the classifier on the testing data / labels:
 #
-# .. your code here ..
+dt.fit(X_train, y_train)
+score = dt.score(X_test, y_test)
+
+
 print "High-Dimensionality Score: ", round((score*100), 3)
 
+print dt.feature_importances_
 
 #
 # TODO: Use the code on the course's SciKit-Learn page to output a .DOT file
@@ -69,6 +84,5 @@ print "High-Dimensionality Score: ", round((score*100), 3)
 # the graphviz website. Also, a graph editor, gvedit.exe can be used to view the
 # tree directly from the exported tree.dot file without having to issue a call.
 #
-# .. your code here ..
 
-
+d = tree.export_graphviz(dt, out_file='pic.dot')

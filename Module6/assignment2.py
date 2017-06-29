@@ -81,10 +81,11 @@ def drawPredictions(X_train, X_test, y_train, y_test):
 
 #
 # TODO: Pass in the file paths to the .tes and the .tra files
-X_train, X_test, y_train, y_test = load('', '')
+p_train = 'Datasets/optdigits.tra'
+p_test = 'Datasets/optdigits.tes'
+X_train, X_test, y_train, y_test = load(p_test, p_train)
 
 import matplotlib.pyplot as plt
-from sklearn import svm
 
 # 
 # Get to know your data. It seems its already well organized in
@@ -99,15 +100,16 @@ peekData(X_train)
 # data / labels:
 print "Training SVC Classifier..."
 #
-# .. your code here ..
-
-
+from sklearn.svm import SVC
+model = SVC(C=1.0, kernel='rbf', gamma=.001)
+model.fit(X_train, y_train)
 
 
 # TODO: Calculate the score of your SVC against the testing data
 print "Scoring SVC Classifier..."
 #
 # .. your code here ..
+score = model.score(X_test, y_test)
 print "Score:\n", score
 
 
@@ -119,8 +121,7 @@ drawPredictions(X_train, X_test, y_train, y_test)
 # TODO: Print out the TRUE value of the 1000th digit in the test set
 # By TRUE value, we mean, the actual provided label for that sample
 #
-# .. your code here ..
-print "1000th test label: ", true_1000th_test_value)
+print "1000th test label: ", y_test[1000]
 
 
 #
@@ -129,15 +130,14 @@ print "1000th test label: ", true_1000th_test_value)
 # INFO: If you get a warning on your predict line, look at the
 # notes from the previous module's labs.
 #
-# .. your code here ..
-print "1000th test prediction: ", guess_1000th_test_value
+print "1000th test prediction: ", model.predict(X_test)[1000]
 
 
 #
 # TODO: Use IMSHOW to display the 1000th test image, so you can
 # visually check if it was a hard image, or an easy image
 #
-# .. your code here ..
+plt.imshow(X_test.ix[1000,:].reshape(8, 8), cmap=plt.cm.gray_r, interpolation='nearest')
 
 
 #
